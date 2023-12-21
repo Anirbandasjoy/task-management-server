@@ -45,6 +45,22 @@ async function run() {
       }
     });
 
+    // find todo list data
+
+    app.get("/api/v1/todolist/:email", async (req, res) => {
+      try {
+        const email = req.params.email;
+        const status = req.query.status;
+        console.log({ email, status });
+        const filter = { email: email, status: status };
+        const result = await taskCollection.find(filter).toArray();
+        res.status(200).send(result);
+      } catch (error) {
+        console.log(error);
+        res.status(500).send({ error: "Internal Server Error" });
+      }
+    });
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
