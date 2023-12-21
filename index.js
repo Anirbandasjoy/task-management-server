@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 require("dotenv").config();
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 const PORT = process.env.PORT || 4000;
 app.use(cors());
@@ -51,13 +51,39 @@ async function run() {
       try {
         const email = req.params.email;
         const status = req.query.status;
-        console.log({ email, status });
         const filter = { email: email, status: status };
         const result = await taskCollection.find(filter).toArray();
         res.status(200).send(result);
       } catch (error) {
         console.log(error);
         res.status(500).send({ error: "Internal Server Error" });
+      }
+    });
+
+    // create delete api
+
+    app.delete("/api/v1/task-delete/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+        const filter = { _id: new ObjectId(id) };
+        console.log({ id, filter });
+        const result = await taskCollection.deleteOne(filter);
+        res.status(200).send({ message: "task successfully deleted" });
+      } catch (error) {
+        res.status(500).send({ error: "Internal Server Error" });
+      }
+    });
+
+    // get single task
+
+    app.get("/api/v1/get-single-task", async (req, res) => {
+      try {
+        const id = req.params.id;
+        const filter = { _id: new ObjectId(id) };
+        const result = await taskCollection.findOne(filter);
+        res.status(200).send(result);
+      } catch (error) {
+        console.log(error);
       }
     });
 
