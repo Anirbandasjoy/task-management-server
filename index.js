@@ -76,7 +76,7 @@ async function run() {
 
     // get single task
 
-    app.get("/api/v1/get-single-task", async (req, res) => {
+    app.get("/api/v1/get-single-task/:id", async (req, res) => {
       try {
         const id = req.params.id;
         const filter = { _id: new ObjectId(id) };
@@ -84,6 +84,27 @@ async function run() {
         res.status(200).send(result);
       } catch (error) {
         console.log(error);
+      }
+    });
+
+    // update task api
+
+    app.put("/api/v1/update-task/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+        const filter = { _id: new ObjectId(id) };
+        console.log({ id, filter });
+        const task = req.body;
+        const update = {
+          $set: {
+            ...task,
+          },
+        };
+        const result = await taskCollection.updateOne(filter, update);
+        res.status(200).send({ message: "Task updated successfully", result });
+      } catch (error) {
+        console.error(error);
+        res.status(500).send({ error: "Internal Server Error" });
       }
     });
 
