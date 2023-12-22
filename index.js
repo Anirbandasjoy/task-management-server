@@ -22,7 +22,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
     const taskCollection = client.db("task-management").collection("task");
     // create task create api
     app.post("/api/v1/create-task", async (req, res) => {
@@ -93,7 +93,6 @@ async function run() {
       try {
         const id = req.params.id;
         const filter = { _id: new ObjectId(id) };
-        console.log({ id, filter });
         const task = req.body;
         const update = {
           $set: {
@@ -108,8 +107,29 @@ async function run() {
       }
     });
 
+    // create status change api
+
+    app.patch("/api/v1/update-status/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+        const filter = { _id: new ObjectId(id) };
+        console.log({ id, filter });
+        const { status } = req.body;
+        const update = {
+          $set: {
+            status,
+          },
+        };
+        const result = await taskCollection.updateOne(filter, update);
+        res.status(200).send({ message: "Task updated successfully", result });
+      } catch (error) {
+        console.error(error);
+        res.status(500).send({ error: "Internal Server Error" });
+      }
+    });
+
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
